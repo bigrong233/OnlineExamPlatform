@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Main-Class: com.rong.GraduationProjectApplication
+Class-Path: spring-core-5.2.5.RELEASE.jar jackson-datatype-jsr310-2.10.3
+ .jar spring-tx-5.2.5.RELEASE.jar tomcat-embed-el-9.0.33.jar thymeleaf-e
+ xtras-java8time-3.0.4.RELEASE.jar SparseBitSet-1.2.jar spring-context-5
+ .2.5.RELEASE.jar thymeleaf-3.0.11.RELEASE.jar spring-boot-starter-2.2.6
+ .RELEASE.jar lombok-1.18.12.jar spring-beans-5.2.5.RELEASE.jar spring-b
+ oot-starter-jdbc-2.2.6.RELEASE.jar mysql-connector-java-8.0.19.jar comm
+ ons-math3-3.6.1.jar jakarta.validation-api-2.0.2.jar slf4j-api-1.7.30.j
+ ar jul-to-slf4j-1.7.30.jar spring-boot-starter-tomcat-2.2.6.RELEASE.jar
+  poi-4.1.2.jar logback-classic-1.2.3.jar mybatis-spring-2.0.4.jar Hikar
+ iCP-3.4.2.jar jackson-annotations-2.10.3.jar commons-codec-1.13.jar spr
+ ing-jdbc-5.2.5.RELEASE.jar hibernate-validator-6.0.18.Final.jar jboss-l
+ ogging-3.4.1.Final.jar tomcat-embed-websocket-9.0.33.jar jackson-core-2
+ .10.3.jar spring-boot-starter-validation-2.2.6.RELEASE.jar mybatis-spri
+ ng-boot-autoconfigure-2.1.2.jar jakarta.annotation-api-1.3.5.jar spring
+ -expression-5.2.5.RELEASE.jar mybatis-spring-boot-starter-2.1.2.jar log
+ 4j-api-2.12.1.jar spring-jcl-5.2.5.RELEASE.jar classmate-1.5.1.jar spri
+ ng-web-5.2.5.RELEASE.jar spring-boot-starter-json-2.2.6.RELEASE.jar log
+ back-core-1.2.3.jar jackson-databind-2.10.3.jar unbescape-1.1.6.RELEASE
+ .jar jackson-datatype-jdk8-2.10.3.jar mybatis-3.5.4.jar spring-boot-2.2
+ .6.RELEASE.jar spring-boot-autoconfigure-2.2.6.RELEASE.jar spring-boot-
+ starter-web-2.2.6.RELEASE.jar spring-boot-starter-thymeleaf-2.2.6.RELEA
+ SE.jar jackson-module-parameter-names-2.10.3.jar spring-webmvc-5.2.5.RE
+ LEASE.jar snakeyaml-1.25.jar attoparser-2.0.5.RELEASE.jar thymeleaf-spr
+ ing5-3.0.11.RELEASE.jar spring-aop-5.2.5.RELEASE.jar log4j-to-slf4j-2.1
+ 2.1.jar spring-boot-starter-logging-2.2.6.RELEASE.jar tomcat-embed-core
+ -9.0.33.jar commons-collections4-4.4.jar
+

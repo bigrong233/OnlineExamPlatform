@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <script data-th-inline="javascript">
+        $(function () {
+            $("#createQuestion-sub").click(function () {
+                $.post('/insertQuestionIntoExam', {
+                    questionContent: $("#inputQuestion").val(),
+                    optionA: $("#inputOptionA").val(),
+                    optionB: $("#inputOptionB").val(),
+                    optionC: $("#inputOptionC").val(),
+                    optionD: $("#inputOptionD").val(),
+                    answer: $("#inputAnswer").val(),
+                    analyze: $("#inputAnalyze").val(),
+                    score: $("#inputScore").val(),
+                    examId: [[${examMsg.exam.examId}]]
+                }, function (data) {
+                    if (data === 1) {
+                        alert("添加成功");
+                        window.location.href="/goWriteExam/" + [[${examMsg.exam.examId}]];
+                    }else{
+                        alert("添加失败");
+                    }
+                })
+            });
+            $("#updateBackdrop").on("show.bs.modal",function (event) {
+                $(this).find("#questionId").val($(event.relatedTarget).data("qid"));
+                $(this).find("#question").val($(event.relatedTarget).data("qc"));
+                $(this).find("#optionA").val($(event.relatedTarget).data("a"));
+                $(this).find("#optionB").val($(event.relatedTarget).data("b"));
+                $(this).find("#optionC").val($(event.relatedTarget).data("c"));
+                $(this).find("#optionD").val($(event.relatedTarget).data("d"));
+                $(this).find("#answer").val($(event.relatedTarget).data("ans"));
+                $(this).find("#analyze").val($(event.relatedTarget).data("ana"));
+                $(this).find("#score").val($(event.relatedTarget).data("sco"));
+            });
+            $("#updateQuestion-sub").click(function () {
+                $.post('/goUpdate', {
+                    questionId: $("#questionId").val(),
+                    questionContent: $("#question").val(),
+                    optionA: $("#optionA").val(),
+                    optionB: $("#optionB").val(),
+                    optionC: $("#optionC").val(),
+                    optionD: $("#optionD").val(),
+                    answer: $("#answer").val(),
+                    analyze: $("#analyze").val(),
+                    score: $("#score").val()
+                }, function (data) {
+                    if(data === 1){
+                        alert("修改成功");
+                        window.location.href="/goWriteExam/" + [[${examMsg.exam.examId}]];
+                    }else {
+                        alert("修改失败");
+                    }
+                });
+            })
+        });
+    </script>
+    <title></title>
+</head>
+<body class="bg-light">
+
+<div class="shadow p-3 mb-5 bg-white rounded" style="margin-left: 15%;margin-right: 15%;margin-top: 50px">
+    <p id="examId" class="text-sm-left" data-th-text="'考试编号:'+${examMsg.exam.examId}"></p>
+    <h1 id="examName" class="text-center" data-th-text="${examMsg.exam.examName}"></h1>
+    <p id="examSubject" class="text-right" data-th-text="'考试类型:'+${examMsg.exam.examSubject}"></p>
+    <p id="isPublic" class="text-right" data-th-text="'是否公开:'+(${examMsg.exam.isPublic}==0)?'公开考试':'私密考试'"></p>
+    <div id="questionList" data-th-if="${not #lists.isEmpty(examMsg.questionList)}" data-th-each="question:${examMsg.questionList}">
+        <br/>
+        <p data-th-text="${question.questionId}" hidden></p>
+        <p data-th-text="${question.questionContent}"></p>
+        <p data-th-text="'A.'+${question.optionA}"></p>
+        <p data-th-text="'B.'+${question.optionB}"></p>
+        <p data-th-text="'C.'+${question.optionC}"></p>
+        <p data-th-text="'D.'+${question.optionD}"></p>
+        <p data-th-text="'答案为:'+${question.answer}"></p>
+        <p data-th-text="'解析:'+${question.analyze}"></p>
+        <p data-th-text="'分值:'+${question.score}"></p>
+        <div class="text-right">
+            <button id="updateQuestion" class="btn-primary"
+                    data-toggle="modal" data-target="#updateBackdrop"
+                    data-th-attr="data-qid=${question.questionId},
+                                  data-qc=${question.questionContent},
+                                  data-a=${question.optionA},
+                                  data-b=${question.optionB},
+                                  data-c=${question.optionC},
+                                  data-d=${question.optionD},
+                                  data-ans=${question.answer},
+                                  data-ana=${question.analyze},
+                                  data-sco=${question.score},">更改</button>
+        </div>
+        <div class="dropdown-divider"></div>
+    </div>
+    <div class="text-center">
+        <button id="newQuestion" class="btn-primary" data-toggle="modal" data-target="#createBackdrop">添加题目</button>
+    </div>
+    <button id="back" onclick="window.location.href='/findExamICreated'" class="btn-primary">返回</button>
+</div>
+
+<!--添加题目-->
+<div class="modal fade" id="createBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog-centered modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createBackdropLabel">新建考试</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="inputQuestion" class="col-2 col-form-label">题目:</label>
+                    <div class="col-9">
+                        <textarea class="form-control" id="inputQuestion" rows="3" placeholder="(示例)1.Java的基本数据类型有几种?" required></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputOptionA" class="col-2 col-form-label">选项A:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="inputOptionA" placeholder="6种" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputOptionB" class="col-2 col-form-label">选项B:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="inputOptionB" placeholder="7种" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputOptionC" class="col-2 col-form-label">选项C:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="inputOptionC" placeholder="8种" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputOptionD" class="col-2 col-form-label">选项D:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="inputOptionD" placeholder="9种" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputAnswer" class="col-2 col-form-label">答案:</label>
+                    <div class="col-3">
+                        <input type="text" class="form-control" id="inputAnswer" placeholder="C" required >
+                    </div>
+                    <label for="inputScore" class="col-2 col-form-label">分值:</label>
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="inputScore" placeholder="5" required >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputAnalyze" class="col-2 col-form-label">答案解析:</label>
+                    <div class="col-9">
+                        <textarea class="form-control" id="inputAnalyze" rows="3" placeholder="基本数据类型包括:byte,short,char,int,float,double,long,boolean一共8种." required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button id="createQuestion-sub" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--修改题目-->
+<div class="modal fade" id="updateBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog-centered modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">新建考试</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row" hidden>
+                    <label for="questionId" class="col-2 col-form-label">题目:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="questionId" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="question" class="col-2 col-form-label">题目:</label>
+                    <div class="col-9">
+                        <textarea class="form-control" id="question" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="optionA" class="col-2 col-form-label">选项A:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="optionA" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="optionB" class="col-2 col-form-label">选项B:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="optionB" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="optionC" class="col-2 col-form-label">选项C:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="optionC" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="optionD" class="col-2 col-form-label">选项D:</label>
+                    <div class="col-9">
+                        <input class="form-control" id="optionD" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="answer" class="col-2 col-form-label">答案:</label>
+                    <div class="col-3">
+                        <input type="text" class="form-control" id="answer" required >
+                    </div>
+                    <label for="score" class="col-2 col-form-label">分值:</label>
+                    <div class="col-2">
+                        <input type="text" class="form-control" id="score" required >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="analyze" class="col-2 col-form-label">答案解析:</label>
+                    <div class="col-9">
+                        <textarea class="form-control" id="analyze" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button id="updateQuestion-sub" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

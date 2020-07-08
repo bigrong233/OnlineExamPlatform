@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <title>注册</title>
+    <style >
+        .form-register{
+            position: absolute;
+            margin: 0 auto;
+            width: 300px;
+            left: 0;
+            right: 0;
+            top: 25px;
+        }
+        .form-background{
+            position: absolute;
+            margin: 0 auto;
+            height: 520px;
+            width: 400px;
+            left: 0;
+            right: 0;
+            top: 15%;
+            background: rgba(102, 166, 255,0.5);
+            box-shadow: 10px 10px 5px #888888;
+        }
+        #msg1,#msg2{
+            color: red;
+            font-size: 10px
+        }
+    </style>
+    <script>
+        $(function () {
+            $("#InputEmail1").blur(function(){
+                let email=$(this).val();
+                $.get("/checkEmail",{email:email},function (data) {
+                    $("#msg1").text(data);
+                })
+            });
+            $("#InputPassword2").blur(function () {
+                if (!($("#InputPassword").val() === $("#InputPassword2").val())){
+                    $("#msg2").text("两次密码不一致!");
+                }else{
+                    $("#msg2").text(null);
+                }
+            });
+            $("#sub").click(function () {
+                if($("#msg1").text() === "" && $("#msg2").text() === ""){
+                    $.post("/goRegister",{
+                        userEmail: $("#InputEmail1").val(),
+                        userPassword: $("#InputPassword").val(),
+                        userName: $("#InputName").val()
+                    },function (data) {
+                        alert("注册成功,您的id为"+data);
+                        window.location.href="/login"
+                    })
+                }else{
+                    alert("注册失败,请正确输入信息");
+                }
+            })
+        });
+    </script>
+</head>
+<body class="bg-light">
+<div class="form-background">
+    <div class="form-register">
+        <div id="register-form">
+            <h1 style="text-align: center">用户注册</h1>
+            <div class="form-group">
+                <label for="InputEmail1">邮箱:</label>
+                <input type="email" id="InputEmail1" class="form-control" placeholder="请输入邮箱" name="userEmail" required autofocus>
+                <a id="msg1" ></a><br>
+                <label for="InputName">昵称:</label>
+                <input type="text" id="InputName" class="form-control" placeholder="请输入昵称" name="userName" required>
+                <br>
+                <label for="InputPassword">密码:</label>
+                <input type="password" id="InputPassword" class="form-control" placeholder="请输入密码" name="userPassword" required>
+                <br>
+                <label for="InputPassword2">确认密码:</label>
+                <input type="password" id="InputPassword2" class="form-control" placeholder="请确认密码" name="userPassword2" required>
+                <a id="msg2"></a><br>
+                <button id="sub" class="btn btn-lg btn-primary btn-block">注册</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

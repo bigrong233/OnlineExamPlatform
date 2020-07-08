@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body class="bg-light">
+
+    <span data-th-if="${#lists.isEmpty(joinExamList)}">您所加入的班级暂未发布考试，或您尚未加入班级</span>
+    <table class="table table-hover" data-th-if="${not #lists.isEmpty(joinExamList)}">
+        <thead>
+        <tr>
+            <th scope="col">考试ID</th>
+            <th scope="col">考试名称</th>
+            <th scope="col">考试类型</th>
+            <th scope="col">是否公开</th>
+            <th scope="col">考试时长</th>
+            <th scope="col">考试开始时间</th>
+            <th scope="col">考试结束时间</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="joinExam:${joinExamList}">
+            <td data-th-text="${joinExam.exam.examId}"></td>
+            <td data-th-text="${joinExam.exam.examName}"></td>
+            <td data-th-text="${joinExam.exam.examSubject}"></td>
+            <td data-th-text="(${joinExam.exam.isPublic}==0)?'是':'否'"></td>
+            <td data-th-text="${joinExam.ClazzExam.examTime}+'分钟'" ></td>
+            <td data-th-text="${#temporals.format(joinExam.ClazzExam.startTime,'yyyy-MM-dd HH:mm')}" ></td>
+            <td data-th-text="${#temporals.format(joinExam.ClazzExam.endTime,'yyyy-MM-dd HH:mm')}" ></td>
+            <td>
+                <a data-th-href="@{'/goAnswerExam?examId='+${joinExam.exam.examId}
+                +'&examTime='+${joinExam.ClazzExam.examTime}
+                +'&startTime='+${#temporals.format(joinExam.ClazzExam.startTime,'yyyy-MM-dd HH:mm')}
+                +'&endTime='+${#temporals.format(joinExam.ClazzExam.endTime,'yyyy-MM-dd HH:mm')}}" >加入考试</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>

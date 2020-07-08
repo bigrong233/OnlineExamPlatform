@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $("#joinBackdrop").on("show.bs.modal",function (event) {
+                $(this).find("#showStaticClazzId").text('加入班级编号为'+$(event.relatedTarget).data("cid")+'的班级');
+                $(this).find("#clazz_id").text($(event.relatedTarget).data("cid"));
+                $(this).find("#user_id").text($(event.relatedTarget).data("uid"));
+            });
+            $("#joinClass-sub").click(function () {
+                $.post("goJoinClazz", {
+                    userId: $("#user_id").text(),
+                    clazzId: $("#clazz_id").text(),
+                    userClazzName: $("#uName").val(),
+                    userClazzId: $("#uId").val()
+                },function (data) {
+                    if(data === "1"){
+                        alert("您已加入此班级");
+                        window.location.href = "/goFindClazzIJoined";
+                    }else {
+                        alert("加入班级失败,该班级人员已满");
+                    }
+                });
+            })
+        });
+    </script>
+    <title></title>
+</head>
+<body>
+    <nav class="navbar navbar-light justify-content-center bg-light">
+        <form class="form-inline" action="/goSearchClazz" method="post">
+            <div class="row">
+                <input id="searchId" name="searchId" data-th-value="${searchId}" class="form-control" type="search" size="50" placeholder="搜索班级" aria-label="Search">
+                <label for="type"></label>
+                <select class="custom-select" name="type" id="type">
+                    <option value="1" selected>按班级id查询</option>
+                    <option value="2">按班级建立者id查询</option>
+                </select>
+                <button id="searchButton" type="submit" class="btn btn-outline-success">查询</button>
+            </div>
+        </form>
+    </nav>
+
+    <table class="table table-striped table-hover" data-th-if="${not #lists.isEmpty(clazzList)}">
+        <thead>
+        <tr>
+            <th scope="col">班级id</th>
+            <th scope="col">班级名</th>
+            <th scope="col">班级人数</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="clazz:${clazzList}">
+            <td data-th-text="${clazz.clazzId}"></td>
+            <td data-th-text="${clazz.clazzName}"></td>
+            <td data-th-text="${clazz.peopleNumber}"></td>
+            <td>
+                <a data-toggle="modal" href="#joinBackdrop"
+                   data-th-attr="data-cid=${clazz.clazzId},
+                                data-uid=${session.userMsg.userId}">加入</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div id="isNull" data-th-if="${#lists.isEmpty(clazzList)}">
+        未搜索到数据<br>
+        请重新输入
+    </div>
+
+    <div class="modal fade" id="joinBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog-centered modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新建班级</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <a id="showStaticClazzId"></a><br>
+                    <a>在此班级中,你的名字和Id改为:</a>
+                    <span hidden>
+                        <a id="clazz_id"></a>
+                        <a id="user_id"></a>
+                    </span>
+                    <div class="form-group row">
+                        <label for="uName" class="col-3 col-form-label">名字:</label>
+                        <div class="col-9">
+                            <input class="form-control" id="uName" placeholder="(示例)叶嵘" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="uId" class="col-3 col-form-label">工号/学号:</label>
+                        <div class="col-9">
+                            <input class="form-control" id="uId" placeholder="20160310805" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button id="joinClass-sub" type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <span hidden>
+        <a id="userId" data-th-text="${session.userMsg.userId}"></a>
+    </span>
+</body>
+</html>

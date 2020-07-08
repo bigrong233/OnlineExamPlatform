@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rong.mapper.ExamMapper">
+
+    <resultMap id="exam" type="Exam">
+        <id column="exam_id" property="examId"/>
+        <result column="exam_name" property="examName"/>
+        <result column="exam_subject" property="examSubject"/>
+        <result column="is_public" property="isPublic"/>
+    </resultMap>
+
+    <select id="selectExamListByExamName" resultMap="exam" parameterType="String">
+        select *
+        from exam
+        where exam_name like concat('%', #{str}, '%')
+          and is_public = 0;
+    </select>
+
+    <select id="selectExamListByExamSubject" resultMap="exam" parameterType="String">
+        select *
+        from exam
+        where exam_subject like concat('%', #{str}, '%')
+          and is_public = 0;
+    </select>
+
+    <select id="selectByExamId" resultMap="exam" parameterType="Integer">
+        select *
+        from exam
+        where exam_id = #{examId};
+    </select>
+
+    <update id="updateExam" parameterType="Exam">
+        update exam
+        set exam_name    = #{examName},
+            exam_subject = #{examSubject},
+            is_public    = #{isPublic}
+        where exam_id = #{examId};
+    </update>
+
+    <resultMap id="examICreated" type="ExamICreated">
+        <association property="exam" javaType="Exam" resultMap="exam"/>
+        <association property="examCreator" javaType="ExamCreator">
+            <result column="create_time" property="createTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectByCreatorId" parameterType="Integer" resultMap="examICreated">
+        select exam.*, exam_creator.create_time
+        from exam_creator
+                 inner join exam on exam_creator.exam_id = exam.exam_id
+        where user_id = #{userId};
+    </select>
+
+    <insert id="insertExam" parameterType="Exam" useGeneratedKeys="true" keyProperty="examId">
+        insert into exam (exam_name, exam_subject, is_public)
+        values (#{examName}, #{examSubject}, #{isPublic});
+    </insert>
+
+    <insert id="insertExamToExamCreator" parameterType="ExamCreator">
+        insert into exam_creator (user_id, exam_id, create_time)
+        values (#{userId}, #{examId}, #{createTime});
+    </insert>
+
+
+    <!--考试内容-->
+    <resultMap id="examContent" type="ExamContent">
+        <id property="exam.examId" column="exam_id"/>
+        <result property="exam.examName" column="exam_name"/>
+        <result property="exam.examSubject" column="exam_subject"/>
+        <result property="exam.isPublic" column="is_Public"/>
+        <collection property="questionList" ofType="Question">
+            <id property="questionId" column="question_id"/>
+            <result property="questionContent" column="question_content"/>
+            <result property="optionA" column="option_a"/>
+            <result property="optionB" column="option_b"/>
+            <result property="optionC" column="option_c"/>
+            <result property="optionD" column="option_d"/>
+            <result property="answer" column="answer"/>
+            <result property="analyze" column="analyze"/>
+            <result property="score" column="score"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectExamContentByExamId" parameterType="Integer" resultMap="examContent">
+        select exam.*, q.*
+        from exam
+                 inner join exam_question eq on exam.exam_id = eq.exam_id
+                 left join question q on eq.question_id = q.question_id
+        where eq.exam_id = #{examId}
+    </select>
+
+    <insert id="insertQuestionIntoExam" parameterType="ExamQuestion">
+        insert into exam_question (exam_id, question_id)
+        values (#{examId}, #{questionId});
+    </insert>
+
+    <resultMap id="examInClazz" type="ExamInClazz">
+        <association property="exam" javaType="Exam" resultMap="exam"/>
+        <association property="clazzExam" javaType="ClazzExam">
+            <result column="start_time" property="startTime"/>
+            <result column="end_time" property="endTime"/>
+            <result column="exam_time" property="examTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectJoinExamByUerId" parameterType="Integer" resultMap="examInClazz">
+        SELECT e.*,
+               ce.start_time,
+               ce.end_time,
+               ce.exam_time
+        FROM exam AS e
+                 INNER JOIN class_exam AS ce ON e.exam_id = ce.exam_id
+                 INNER JOIN class_user AS cu ON cu.class_id = ce.class_id
+        WHERE cu.user_id = #{userId}
+    </select>
+
+    <resultMap id="userExam" type="UserExam">
+        <id column="user_id" property="userId"/>
+        <id column="exam_id" property="examId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="score" property="score"/>
+    </resultMap>
+
+    <insert id="insertStartTimeToUserExam" parameterType="UserExam">
+        insert into user_exam (user_id, exam_id, start_time)
+        values (#{userId}, #{examId}, #{startTime});
+    </insert>
+
+    <select id="selectUserExamByUserIdAndExamId" parameterType="UserExam" resultMap="userExam">
+        select *
+        from user_exam
+        where user_id = #{userId}
+          and exam_id = #{examId};
+    </select>
+
+    <update id="updateUserExamByUserIdAndExamId" parameterType="UserExam">
+        update user_exam
+        set end_time = #{endTime},
+            score    = #{score}
+        where user_id = #{userId}
+          and exam_id = #{examId};
+    </update>
+    <resultMap id="examScore" type="ExamScore">
+        <association property="userExam" resultMap="userExam"/>
+        <association property="exam" resultMap="exam"/>
+    </resultMap>
+
+    <select id="selectExamScoreByUserId" resultMap="examScore" parameterType="Integer">
+        select *
+        from user_exam as ue
+                 inner join exam as e on ue.exam_id = e.exam_id
+        where user_id = #{userId}
+          and end_time is not null;
+    </select>
+
+    <insert id="insertUserQuestion" parameterType="UserQuestion">
+        insert into user_question (user_id, question_id, user_answer) values
+        <foreach collection="questionAnswerList" item="item" index="index" separator=",">
+            (#{userId},#{item.questionId},#{item.answer})
+        </foreach>
+    </insert>
+
+    <resultMap id="userExamContent" type="UserExamContent">
+        <id property="exam.examId" column="exam_id"/>
+        <result property="exam.examName" column="exam_name"/>
+        <result property="exam.examSubject" column="exam_subject"/>
+        <result property="exam.isPublic" column="is_Public"/>
+        <collection property="userQuestionAndAnswerList" ofType="UserQuestionAndAnswer">
+            <id property="questionId" column="question_id"/>
+            <result property="questionContent" column="question_content"/>
+            <result property="optionA" column="option_a"/>
+            <result property="optionB" column="option_b"/>
+            <result property="optionC" column="option_c"/>
+            <result property="optionD" column="option_d"/>
+            <result property="answer" column="answer"/>
+            <result property="analyze" column="analyze"/>
+            <result property="score" column="score"/>
+            <result property="userAnswer" column="user_answer"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectUserExamContentByUserExam" parameterType="UserExam" resultMap="userExamContent">
+        select e.*, q.*, uq.user_answer
+        from user_exam as ue
+                 inner join exam e on ue.exam_id = e.exam_id
+                 inner join exam_question eq on e.exam_id = eq.exam_id
+                 inner join question q on eq.question_id = q.question_id
+                 inner join user_question uq on q.question_id = uq.question_id
+        where ue.user_id = #{userId}
+          and ue.exam_id = #{examId};
+    </select>
+</mapper>

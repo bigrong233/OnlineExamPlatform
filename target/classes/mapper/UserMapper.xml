@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rong.mapper.UserMapper">
+    
+    <resultMap id="user" type="User">
+        <id column="user_id" property="userId"/>
+        <result column="user_email" property="userEmail"/>
+        <result column="user_password" property="userPassword"/>
+        <result column="user_name" property="userName"/>
+
+    </resultMap>
+
+    <select id="findAll" resultMap="user">
+        select * from user;
+    </select>
+    
+    <select id="selectByEmail" parameterType="String" resultType="String">
+        select user_email from user where user_email=#{userEmail}
+    </select>
+
+    <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+        insert into user(user_email, user_password, user_name)
+        VALUES(#{userEmail},#{userPassword},#{userName})
+    </insert>
+
+
+    <select id="selectByEmailAndPassword" parameterType="User" resultType="Integer">
+        select user_id from user where user_email=#{userEmail} and user_password=#{userPassword}
+    </select>
+
+    <select id="selectById" parameterType="Integer" resultMap="user">
+        select * from user where user_id=#{id};
+    </select>
+
+    <update id="updateUser" parameterType="user">
+        update user
+        set
+        user_name = #{userName},
+        user_password = #{userPassword}
+        where user_id = #{userId};
+    </update>
+
+
+</mapper>

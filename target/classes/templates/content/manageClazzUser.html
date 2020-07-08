@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <title></title>
+    <script>
+        $(function () {
+            $("#updateBackdrop").on("show.bs.modal", function (event) {
+                $(this).find("#updateClazzId").val($(event.relatedTarget).data("cid"));
+                $(this).find("#updateUserId").val($(event.relatedTarget).data("uid"));
+                $(this).find("#updateUserClazzId").val($(event.relatedTarget).data("id"));
+                $(this).find("#updateUserClazzName").val($(event.relatedTarget).data("name"));
+            });
+            $("#updateUserClazz-sub").click(function () {
+                $.post('/goUpdateClazzUser', {
+                    userId: $("#updateUserId").val(),
+                    clazzId: $("#updateClazzId").val(),
+                    userClazzName: $("#updateUserClazzName").val(),
+                    userClazzId: $("#updateUserClazzId").val()
+                }, function (data) {
+                    if (data === true) {
+                        alert("修改成功");
+                        window.location.href = "/goManageClazzUser?clazzId="+$("#updateClazzId").val();
+                    } else {
+                        alert("修改不成功");
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+<table class="table table-striped table-hover" data-th-if="${not #lists.isEmpty(userList)}">
+    <thead>
+    <tr>
+        <th scope="col">用户id</th>
+        <th scope="col" hidden>班级id</th>
+        <th scope="col">工号/学号</th>
+        <th scope="col">姓名</th>
+        <th scope="col">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-th-each="classUser:${userList}">
+        <td data-th-text="${classUser.userId}"></td>
+        <td data-th-text="${classUser.clazzId}" hidden></td>
+        <td data-th-text="${classUser.userClazzId}"></td>
+        <td data-th-text="${classUser.userClazzName}"></td>
+        <td>
+            <a data-toggle="modal" href="#updateBackdrop"
+               data-th-attr="data-uid=${classUser.userId},
+                                    data-cid=${classUser.clazzId},
+                                    data-id=${classUser.userClazzId},
+                                    data-name=${classUser.userClazzName}">修改用户信息</a>|
+            <a data-th-href="@{'/goDeleteClazzUser?userId='+${classUser.userId}
+                                                    +'&clazzId='+${classUser.clazzId}}">删除</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div id="isNull" data-th-if="${#lists.isEmpty(userList)}">尚未加入班级</div>
+<!--修改信息面板-->
+<div class="modal fade" id="updateBackdrop" data-backdrop="static" tabindex="-1" role="dialog"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog-centered modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">修改用户信息</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row" hidden>
+                    <label for="updateClazzId" class="col-4 col-form-label"></label>
+                    <div class="col-7">
+                        <input type="text" class="form-control"
+                               id="updateClazzId">
+                    </div>
+                </div>
+                <div class="form-group row" hidden>
+                    <label for="updateUserId" class="col-4 col-form-label"></label>
+                    <div class="col-7">
+                        <input type="text" class="form-control"
+                               id="updateUserId">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="updateUserClazzId" class="col-4 col-form-label">工号/学号</label>
+                    <div class="col-7">
+                        <input type="text" class="form-control"
+                               id="updateUserClazzId">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="updateUserClazzName" class="col-4 col-form-label">姓名</label>
+                    <div class="col-7">
+                        <input type="text" class="form-control"
+                               id="updateUserClazzName">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button id="updateUserClazz-sub" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

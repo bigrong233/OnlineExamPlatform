@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN" >
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <title></title>
+    <style>
+        #content{
+            width: 100%;
+            height: 85px;
+            background-color: royalblue;
+        }
+        #bottom{
+            width: 100%;
+            height: 20px;
+            background-image: linear-gradient(royalblue,white);
+        }
+        #logo{
+            position: absolute;
+            top:10px;
+            color: white;
+        }
+        #userMsg{
+            position: absolute;
+            bottom: 20px;
+            right: 0;
+            font-size: xx-small
+        }
+    </style>
+    <script>
+        $(function () {
+            $("#logout").click(function () {
+                if(confirm("你确定注销吗?")){
+                    $.get("/logout");
+                    parent.location.href="/login"
+                }
+            })
+        })
+    </script>
+</head>
+
+<body>
+<div id="content" >
+    <div id="logo">
+        <h2>在线自助考试平台</h2>
+    </div>
+    <div id="userMsg">
+        <a style="color: white" data-th-text="${session.userMsg.userEmail} " target="mainContent" href="/updateUserMsg"></a>
+<!--        <a style="color: white" >test</a>-->
+        <button id="logout" class="btn-danger"  >退出</button>
+    </div>
+</div>
+<div id="bottom"></div>
+</body>
+</html>

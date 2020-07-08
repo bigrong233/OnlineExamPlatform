@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rong.mapper.ClazzMapper">
+
+    <resultMap id="clazz" type="Clazz">
+        <id column="class_id" property="clazzId"/>
+        <result column="class_name" property="clazzName"/>
+        <result column="people_number" property="peopleNumber"/>
+    </resultMap>
+
+    <resultMap id="clazzUser" type="ClazzUser">
+        <id column="cid" property="clazzId"/>
+        <id column="uid" property="userId"/>
+        <result column="user_class_name" property="userClazzName"/>
+        <result column="user_class_id" property="userClazzId"/>
+    </resultMap>
+
+    <insert id="insertClazz" parameterType="Clazz" useGeneratedKeys="true" keyProperty="clazzId">
+        insert into class (class_name, people_number)
+        values (#{clazzName}, #{peopleNumber});
+    </insert>
+
+
+    <select id="selectById" parameterType="Integer" resultType="Clazz">
+        select *
+        from class
+        where class_id = #{clazzId};
+    </select>
+    <delete id="deleteClazz" parameterType="Integer">
+        delete
+        from class
+        where class_id = #{clazzId}
+    </delete>
+
+    <insert id="insertClazzCreator" parameterType="ClazzCreator">
+        insert into class_creator (user_id, class_id)
+        values (#{userId}, #{clazzId});
+    </insert>
+
+    <select id="selectByCreatorId" parameterType="Integer" resultMap="clazz">
+        select *
+        from class
+        where class_id in (select class_id from class_creator where user_id = #{userId})
+    </select>
+
+    <update id="updateClazz" parameterType="Clazz">
+        update class
+        set class_name    = #{clazzName},
+            people_number = #{peopleNumber}
+        where class_id = #{clazzId};
+    </update>
+
+    <select id="selectByClazzId" parameterType="Integer" resultMap="clazz">
+        select *
+        from class
+        where class_id = #{clazzId};
+    </select>
+
+    <insert id="insertClazzUser" parameterType="ClazzUser">
+        insert into class_user (class_id, user_id, user_class_name, user_class_id)
+        values (#{clazzId}, #{userId}, #{userClazzName}, #{userClazzId});
+    </insert>
+
+    <!--查看我加入的班级的resultMap-->
+    <resultMap id="clazzIJoined" type="ClazzIJoined">
+        <association property="clazz" javaType="Clazz" resultMap="clazz"/>
+        <association property="clazzUser" javaType="ClazzUser" resultMap="clazzUser"/>
+    </resultMap>
+
+    <update id="updateClazzUser" parameterType="ClazzUser">
+        update class_user
+        set user_class_id   = #{userClazzId},
+            user_class_name = #{userClazzName}
+        where user_id = #{userId}
+          and class_id = #{clazzId};
+    </update>
+
+    <select id="selectClazzIJoinedByUserId" parameterType="Integer" resultMap="clazzIJoined">
+        select class.*, user_class_name, user_class_id
+        from class_user
+                 left join class on class_user.class_id = class.class_id
+        where user_id = #{userId};
+    </select>
+
+    <insert id="insertExamIntoClazz" parameterType="ClazzExam">
+        insert into class_exam (class_id, exam_id, start_time, end_time, exam_time)
+        values (#{clazzId}, #{examId}, #{startTime}, #{endTime}, #{examTime});
+    </insert>
+
+    <resultMap id="examInClazz" type="ExamInClazz">
+        <association property="exam" javaType="Exam">
+            <id column="exam_id" property="examId"/>
+            <result column="exam_name" property="examName"/>
+            <result column="exam_subject" property="examSubject"/>
+            <result column="is_public" property="isPublic"/>
+        </association>
+        <association property="clazzExam" javaType="ClazzExam">
+            <result column="cid" property="clazzId"/>
+            <result column="eid" property="examId"/>
+            <result column="start_time" property="startTime"/>
+            <result column="end_time" property="endTime"/>
+            <result column="exam_time" property="examTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectClazzExamByClazzId" parameterType="Integer" resultMap="examInClazz">
+        SELECT e.*,
+               ce.exam_id  as eid,
+               ce.class_id as cid,
+               ce.start_time,
+               ce.end_time,
+               ce.exam_time
+        FROM exam AS e
+                 INNER JOIN class_exam AS ce ON e.exam_id = ce.exam_id
+        WHERE ce.class_id = #{clazzId}
+    </select>
+
+    <select id="selectClazzUserByClazzId" parameterType="Integer" resultMap="clazzUser">
+        select user_id as uid, class_id as cid, user_class_name, user_class_id
+        from class_user
+        where class_id = #{clazzId};
+    </select>
+
+    <delete id="deleteClazzUser" parameterType="ClazzUser">
+        delete
+        from class_user
+        where user_id = #{userId}
+          and class_id = #{clazzId}
+    </delete>
+
+    <update id="updateClazzExam" parameterType="ExamInClazz">
+        update class_exam
+        set start_time = #{startTime},
+            end_time   = #{endTime},
+            exam_time  = #{examTime}
+        where class_id = #{clazzId}
+          and exam_id = #{examId};
+    </update>
+
+    <delete id="deleteClazzExam" parameterType="ClazzExam">
+        delete
+        from class_exam
+        where exam_id = #{examId}
+          and class_id = #{clazzId}
+    </delete>
+
+    <resultMap id="examScoreInClazz" type="ExamScoreInClazz">
+        <result property="userClassId" column="user_class_id"/>
+        <result property="userClassName" column="user_class_name"/>
+        <result property="score" column="score"/>
+    </resultMap>
+
+    <select id="findExamScoreInClazz" resultMap="examScoreInClazz" parameterType="ClazzExam">
+        select cu.user_class_id, cu.user_class_name, ue.score
+        from user_exam ue
+                 inner join class_user cu on ue.user_id = cu.user_id
+        where class_id = #{clazzId}
+          and ue.exam_id = #{examId}
+    </select>
+</mapper>
